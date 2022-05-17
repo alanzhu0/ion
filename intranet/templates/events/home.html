@@ -6,14 +6,41 @@
     {{ block.super }} - Events
 {% endblock %}
 
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'js/vendor/jquery.timeago.js' %}"></script>
+
+    <script>
+        var view = "{{ view }}";
+        function setView(view_name){
+            if(view_name == "month") {
+                $("#view-div").html(`{% include "events/month.html" %}`);
+                $("#{{ week_data.today }}").attr("class", "today");
+            }
+            else {
+                $("#view-div").html(`{% include "events/week.html" %}`);
+                $("#{{ week_data.today }}").attr("class", "today");
+            }
+        }
+        $(document).ready(function() {
+            setView(view);
+            $("#month-button").click(function(e){
+                e.preventDefault();
+                setView('month');
+            });
+            $("#week-button").click(function(e){
+                e.preventDefault();
+                setView('week');
+            });
+            $("#{{ week_data.today }}").attr("class", "today");
+        });
+    </script>
+{% endblock %}
+
 {% block css %}
     {{ block.super }}
     {% stylesheet 'dashboard' %}
     {% stylesheet 'events' %}
-{% endblock %}
-
-{% block js %}
-    {{ block.super }}
 {% endblock %}
 
 {% block head %}
@@ -30,14 +57,8 @@
         <h2>Events</h2>
         <div class="button-container">
             {% if is_events_admin %}
-                <a href="?show_all=1" class="button">
-                    Show All
-                </a>
-            {% endif %}
-
-            {% if is_events_admin %}
                 <a href="{% url 'add_event' %}" class="button">
-                    <i class="fas fa-bullhorn"></i>
+                    <i class="fas fa-plus"></i>
                     Add
                 </a>
             {% else %}
@@ -46,25 +67,34 @@
                     Request
                 </a>
             {% endif %}
+            &nbsp;
+            <a id="month-button" class="button" href="#">Month</a>
+            <a id="week-button" class="button" href="#">Week</a>
+            &nbsp;
         </div>
-
         <div class="events-container">
             {% for category in events %}
-                {% if category.events %}
+                {% if category.title == "Awaiting Approval" and category.events %}
                     <h2 class="category">{{ category.title }}:</h2>
+                    {% for event in category.events %}
+                        {% include "events/event.html" %}
+                    {% endfor %}
+                {% elif category.title == "Week and month" and category.events and category.has_attending_event %}
+                    <h2 class="category">Special:</h2>
+                    {% for event in category.events %}
+                        {% if event.show_attending or event.scheduled_activity or event.announcement %}
+                            {% include "events/event.html" %}
+                        {% endif %}
+                    {% endfor %}
                 {% endif %}
-
-                {% for event in category.events %}
-                    {% include "events/event.html" %}
-                {% endfor %}
             {% endfor %}
-
             {% if num_events == 0 %}
-                <div class="event">
-                    There are no events to display at this time.
-                </div>
+                There are no events to display at this time.
             {% endif %}
+            <br />
+            <br />
+        </div>
+        <div class="events-container" id="view-div"></div>
     </div>
 
-    </div>
 {% endblock %}
