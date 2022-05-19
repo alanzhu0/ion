@@ -72,6 +72,7 @@ def events_context(request, date=None):
             "has_events": has_events,
         }
     }
+    
     return data
 
 
