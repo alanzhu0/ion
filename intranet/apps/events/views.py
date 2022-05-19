@@ -102,6 +102,7 @@ def week_data(request, date=None):
         "last_week": last_week,
         "today": today,
     }
+
     return data
 
 

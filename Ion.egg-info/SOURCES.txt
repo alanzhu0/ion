@@ -8,7 +8,6 @@
 .style.yapf
 CONTRIBUTING.md
 COPYING
-Pipfile
 README.rst
 SECURITY.md
 Vagrantfile
