@@ -32,7 +32,6 @@ function toggleTouchEvents(viewName) {
                 if (!listening) {
                     return;
                 }
-
                 var nowX = e.originalEvent.touches[0].clientX,
                     nowY = e.originalEvent.touches[0].clientY;
 
