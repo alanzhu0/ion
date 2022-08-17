@@ -29,6 +29,13 @@ function showWaitScreen() {
 $(function() {
     initUIElementBehavior();
 
+    $("body").one("keydown", function(e) {
+        if(e.keyCode === 9) {
+            e.preventDefault();
+        }
+        $("#searchbox").focus();
+    });
+
     $(".nav a").click(function(event) {
         if (event.metaKey) return;
         $(".nav .selected").removeClass("selected");
