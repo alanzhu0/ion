@@ -42,8 +42,8 @@ NOMINATION_POSITION = ""
 ENABLE_WAITLIST = False  # WARNING: Enabling the waitlist causes severe performance issues
 ENABLE_BUS_APP = True
 ENABLE_BUS_DRIVER = True
-ENABLE_PRE_EIGHTH_CLOSE_SIGNUP_REDIRECT = False
-ENABLE_PRE_EIGHTH_LOCATION_REDIRECT = True
+ENABLE_PRE_EIGHTH_CLOSE_SIGNUP_REDIRECT = False  # Redirect to eighth signup page after login if the user isn't signed up for activities
+ENABLE_PRE_EIGHTH_LOCATION_REDIRECT = True  # Redirect to eighth_location around eighth period (increase performance during peak times)
 NOTIFY_ADMIN_EMAILS = None
 
 IOS_APP_CLIENT_IDS = []  # Attempting to OAuth to an application with one of these client IDs will result in a *special* error message
@@ -61,12 +61,29 @@ EMERGENCY_MESSAGE = None  # type: str
 # the HTTP Host header.
 ALLOWED_HOSTS = ["ion.tjhsst.edu", "198.38.18.250", "localhost", "127.0.0.1"]
 
-# When school is scheduled to start
-SCHOOL_START_DATE = datetime.date(2017, 8, 28)
+# When school is scheduled to start and end
+SCHOOL_START_DATE = datetime.date(2022, 8, 22)
+SCHOOL_END_DATE = datetime.date(2022, 6, 16)
+
+# Default fallback time for start and end of school if no schedule is available
+SCHOOL_START_HOUR = 8  # Not currently used
+SCHOOL_START_MINUTE = 40  # Not currently used
+SCHOOL_END_HOUR = 16
+SCHOOL_END_MINUTE = 0
+
+# Adjust for summer school:
+IS_SUMMER_SCHOOL = False
+
+if SCHOOL_END_DATE + datetime.timedelta(weeks=1) < datetime.date.today() < SCHOOL_END_DATE - datetime.timedelta(weeks=2):
+    IS_SUMMER_SCHOOL = True
+    SCHOOL_START_HOUR = 8
+    SCHOOL_START_MINUTE = 0
+    SCHOOL_END_HOUR = 15
+    SCHOOL_END_MINUTE = 0
 
 # Dates when hoco starts and ends
-HOCO_START_DATE = datetime.date(2017, 10, 2)
-HOCO_END_DATE = datetime.date(2017, 10, 14)
+HOCO_START_DATE = datetime.date(2022, 9, 19)
+HOCO_END_DATE = datetime.date(2022, 9, 24)
 
 PRODUCTION = os.getenv("PRODUCTION", "").upper() == "TRUE"
 IN_CI = any(os.getenv(key, "").upper() == "TRUE" for key in ["TRAVIS", "GITHUB_ACTIONS"])
