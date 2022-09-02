@@ -12,6 +12,7 @@ README.rst
 SECURITY.md
 SETUP.md
 Vagrantfile
+create_users.py
 deploy
 fabfile.py
 manage.py
