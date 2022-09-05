@@ -82,6 +82,7 @@ ENABLE_BUS_DRIVER = True
 ENABLE_PRE_EIGHTH_CLOSE_SIGNUP_REDIRECT = False  # Redirect to eighth signup page after login if the user isn't signed up for activities
 ENABLE_PRE_EIGHTH_LOCATION_REDIRECT = True  # Redirect to eighth_location around eighth period (increase performance during peak times)
 ENABLE_PRE_DISMISSAL_BUS_REDIRECT = True  # Redirect to bus page around dismissal
+
 NOTIFY_ADMIN_EMAILS = None
 
 IOS_APP_CLIENT_IDS = []  # Attempting to OAuth to an application with one of these client IDs will result in a *special* error message
@@ -382,6 +383,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",  # For page messages
                 "intranet.apps.context_processors.ion_base_url",  # For determining the base url
                 "intranet.apps.context_processors.nav_categorizer",  # For determining the category in the navbar
+                "intranet.apps.context_processors.csl_apps",  # For showing a list of CSL apps in the navbar
                 "intranet.apps.context_processors.global_warning",  # For showing a global warning throughout the application (in page_base.html)
                 "intranet.apps.eighth.context_processors.start_date",  # For determining the eighth pd start date
                 "intranet.apps.eighth.context_processors.absence_count",  # For showing the absence count in the navbar
@@ -585,6 +587,7 @@ INSTALLED_APPS = [
     "intranet.apps.api",
     "intranet.apps.auth",
     "intranet.apps.bus",
+    "intranet.apps.cslapps",
     "intranet.apps.eighth",
     "intranet.apps.events",
     "intranet.apps.groups",
