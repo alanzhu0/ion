@@ -33,17 +33,17 @@ def help():
 
 
 def success_message(user_type):
-    length = len(sys.argv)-2
+    length = len(sys.argv) - 2
 
     if length > 1:  # plural
-        user_type = user_type + 's'
+        user_type = user_type + "s"
 
-    print('Successfully created ' + str(length) + ' ' + user_type + ':')
+    print("Successfully created " + str(length) + " " + user_type + ":")
     for name in sys.argv[2:]:
         if sys.argv.index(name) == len(sys.argv) - 1:
             print(name)
         else:
-            print(name, end=', ')
+            print(name, end=", ")
 
     sys.exit(0)
 

@@ -40,7 +40,6 @@ config/krb5.conf
 config/docker/Dockerfile
 config/docker/docker-compose.yml
 config/docker/entrypoint.sh
-config/docker/make_admin.py
 config/docker/secret.py
 config/vagrant/devconfig.json.sample
 config/vagrant/ion_env_setup.sh
@@ -3631,7 +3630,6 @@ migrations/__init__.py
 scripts/build_docs.sh
 scripts/build_ensure_no_changes.sh
 scripts/build_sources.sh
-scripts/create_users.py
 scripts/export_fixtures.sh
 scripts/format.sh
 scripts/get_ldif.py
