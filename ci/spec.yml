@@ -69,7 +69,7 @@ env:
 
 jobs:
   linting:
-    runs-on: ubuntu-latest
+    runs-on: alpine_latest
 
     strategy:
       matrix:
@@ -91,7 +91,7 @@ jobs:
         run: isort --check intranet
 
   formatting:
-    runs-on: ubuntu-latest
+    runs-on: alpine_latest
 
     strategy:
       matrix:
@@ -111,7 +111,7 @@ jobs:
         run: ./scripts/build_ensure_no_changes.sh ./scripts/static_templates_format.sh
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: alpine_latest
 
     strategy:
       matrix:
@@ -163,7 +163,7 @@ jobs:
 
 
   tests:
-    runs-on: ubuntu-latest
+    runs-on: alpine_latest
 
     strategy:
       matrix:
@@ -259,7 +259,7 @@ jobs:
       - build
       - tests
 
-    runs-on: ubuntu-latest
+    runs-on: alpine_latest
 
     steps:
       - name: Tell Coveralls that parallel jobs have finished
