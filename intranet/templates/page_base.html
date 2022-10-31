@@ -24,10 +24,21 @@
             </style>
         {% endif %}
     {% endblock %}
-        {% stylesheet 'theme.blue' %}
-        {% if theme.css %}
-            <link rel="stylesheet" href="{% static theme.css %}">
-        {% endif %}
+
+    {% stylesheet 'theme.blue' %}
+    {% if theme.css %}
+        <link rel="stylesheet" href="{% static theme.css %}">
+    {% endif %}
+
+    <style>
+        body {
+            background-image: url( {{ user_theme.background_image }} );
+            background-color: {{ user_theme.background_color }};
+        }
+        .header {
+            background: {{ user_theme.background_color }};
+        }
+    </style>
 
     {% block js %}
         <script src="https://code.jquery.com/jquery-1.12.4.min.js"

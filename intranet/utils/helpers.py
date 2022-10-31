@@ -10,6 +10,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from ..apps.emerg.views import get_emerg
+#from ..apps.users.models import User
 
 logger = logging.getLogger("intranet.settings")
 
@@ -220,6 +221,11 @@ def get_theme() -> Dict[str, Dict[str, str]]:
     """Load a custom login theme (e.g. snow)"""
     return LOGIN_THEMES.get(get_theme_name(), {})
 
+
+def user_theme(request):
+    """Return the theme for the current user."""
+    if request.user.is_authenticated:
+        return request.user.theme
 
 def dark_mode_enabled(request):
     if request.GET.get("dark", None):

@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 
 from ..bus.models import Route
-from ..users.models import Email, Grade, Phone, Website
+from ..users.models import Email, Grade, Phone, Theme, Website
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +98,7 @@ class DarkModeForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["dark_mode_enabled"] = forms.BooleanField(
-            initial=user.dark_mode_properties.dark_mode_enabled, label="Enable dark mode?", required=False
+            initial=user.dark_mode_properties.dark_mode_enabled, label="Enable dark mode", required=False
         )
 
 
@@ -129,6 +129,21 @@ class WebsiteForm(forms.ModelForm):
     class Meta:
         model = Website
         fields = ["url"]
+        
+
+class ThemeForm(forms.Form):
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        def color(label, default):
+            return forms.CharField(initial=default, label=label, required=False, widget=ColorPickerWidget)
+        def image(label, default):
+            return forms.ImageField(initial=default, label=label, required=False)
+
+        self.fields["background_preset_color"] = color("Background Color (Templates):", False)
+        self.fields["background_custom_color"] = color("Background Color (Custom):", False)
+        self.fields["background_preset_image"] = image("Background Image (Templates):", False)
+        self.fields["background_custom_image"] = image("Background Image (Custom):", False)
 
 
 PhoneFormset = forms.inlineformset_factory(get_user_model(), Phone, form=PhoneForm, extra=1)

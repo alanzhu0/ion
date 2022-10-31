@@ -31,7 +31,6 @@ def global_warning(request):
     Display a global warning on all pages throughout the application.
     """
     warning = settings.GLOBAL_WARNING if hasattr(settings, "GLOBAL_WARNING") else None
-
     return {"global_warning": warning}
 
 
@@ -121,6 +120,15 @@ def global_custom_theme(request):
         theme = {"css": "themes/piday/piday.css"}
 
     return {"theme": theme}
+
+
+def user_theme(request):
+    """
+    Export the user's theme
+    """
+    theme_info = {"background_image": request.user.theme.get().background_image, "background_color": request.user.theme.get().background_color}
+    logger.info(theme_info)
+    return {"user_theme": theme_info}
 
 
 def show_homecoming(request):

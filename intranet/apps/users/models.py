@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines; Allow more than 1000 lines
 import logging
 from base64 import b64encode
+from colorfield.fields import ColorField
 from datetime import timedelta
 from typing import Collection, Dict, Optional, Union
 
@@ -1283,6 +1284,49 @@ class Website(models.Model):
 
     class Meta:
         unique_together = ("user", "url")
+
+
+def custom_user_background_upload_path(instance, filename):
+    return f"usercontent/{instance.user.id}/background"
+
+
+class Theme(models.Model):
+    """Represents a user's chosen Theme"""
+    COLORS = (
+        ("grey", "Grey"),
+        ("blue", "Blue"),
+        ("light-blue", "Light Blue"),
+        ("red", "Red"),
+        ("green", "Green"),
+        ("violet", "Violet"),
+        ("purple", "Purple")
+    )
+    IMAGES = (
+        ('ps_neutral', "Default (solid grey)"),
+        ('pixel_weave', "Weave"),
+        ('pw_pattern', "Boxes"),
+    )
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="theme", on_delete=models.CASCADE)
+
+    background_preset_color = models.CharField(choices=COLORS, max_length=100, blank=True, null=True)
+    background_custom_color = ColorField(default="#B7B7B7", blank=True, null=True)
+
+    background_preset_image = models.CharField(choices=IMAGES, max_length=100, blank=True, null=True)
+    background_custom_image = models.ImageField(upload_to=custom_user_background_upload_path, blank=True, null=True)
+
+    @cached_property
+    def background_color(self):
+        custom_color = self.background_custom_color
+        return custom_color if custom_color else self.background_preset_color
+
+    @cached_property
+    def background_image(self):
+        custom_image = self.background_custom_image
+        return f"uploads/{custom_image}" if custom_image else f"/static/img/patterns/{self.background_preset_image}.png"
+
+    def __str__(self):
+        return f"{self.user} - Color: {self.background_color}, Image: {self.background_image}"
 
 
 class Address(models.Model):

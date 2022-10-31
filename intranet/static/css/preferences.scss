@@ -70,3 +70,16 @@ tr:nth-last-child(2) a.delete-row {
     z-index: 1;
     margin-bottom: 15px;
 }
+
+select#id_bus_route {
+    margin-left: 8px;
+}
+
+input[type=checkbox], input[type=radio] {
+    position: relative;
+    top: 2px;
+}
+
+h3 {
+    font-size: 18px;
+}
