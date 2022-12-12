@@ -8,23 +8,34 @@ $(function () {
 
     if (enabled) {
         // Snow streak - How many days in a row the user has seen the theme. Controls size and speed of snow.
-        let dayStreak = Cookies.get("dayStreak");
-        if (dayStreak == null) {
-            Cookies.set("dayStreak", 1, { expires: 5 * 7 });
+        let dayStreak, prevDay;
+
+        if (Cookies.get(btoa("dayStreak")) == null) {          // TODO: Store in database instead of cookies
+            Cookies.set(btoa("dayStreak"), btoa(1), { expires: 5 * 7 });
             dayStreak = 1;
         }
 
+        dayStreak = atob(Cookies.get(btoa("dayStreak")));  // encode both the cookie name and value in base64 (make it *slightly* harder to find for these TJ kids)
+
         let day = new Date().getDate();
-        let prevDay = Cookies.get("prevDay");
-        if (prevDay == null) {
-            Cookies.set("prevDay", day, { expires: 5 * 7 });
+        if (Cookies.get(btoa("prevDay")) == null) {
+            Cookies.set(btoa("prevDay"), btoa(day), { expires: 5 * 7 });
             prevDay = day;
         }
+
+        prevDay = atob(Cookies.get(btoa("prevDay")));
+
         if (prevDay < day) {
-            Cookies.set("dayStreak", parseInt(dayStreak) + 1, { expires: 5 * 7 });
+            Cookies.set(btoa("dayStreak"), btoa(parseInt(dayStreak) + 1), { expires: 5 * 7 });
             dayStreak = parseInt(dayStreak) + 1;
-            Cookies.set("prevDay", day, { expires: 5 * 7 });
+            Cookies.set(btoa("prevDay"), btoa(day), { expires: 5 * 7 });
         }
+
+        // attempt to fool them lol
+        if(!Cookies.get("snow-streak")) {
+            Cookies.set("snow-streak", dayStreak, { expires: 5 * 7 });
+        }
+
 
         // Option to disable theme
         $(".header > .right > ul").prepend(`
@@ -525,8 +536,8 @@ $(function () {
                 </li>
             `));
         }
-        Cookies.remove("dayStreak");
-        Cookies.remove("prevDay");
+        Cookies.remove(btoa("dayStreak"));
+        Cookies.remove(atob("prevDay"));
     }
 });
 
@@ -538,12 +549,12 @@ function toggleTheme() {
 
 function handleDecreaseSnowStreak() {
     if(confirm("Are you sure you want to decrease your snow streak by 1?")) {
-        let dayStreak = Cookies.get("dayStreak");
+        let dayStreak = atob(Cookies.get(btoa("dayStreak")));
         if(dayStreak <= 1) {
             alert("Your snow streak is already 1 and cannot be decreased further.");
             return;
         }
-        Cookies.set("dayStreak", parseInt(dayStreak) - 1, { expires: 5 * 7 });
+        Cookies.set(btoa("dayStreak"), btoa(parseInt(dayStreak) - 1), { expires: 5 * 7 });
         location.reload();
     }
 }
