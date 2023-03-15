@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 
 from intranet.apps.search.views import get_search_results
 
-from ..auth.rest_permissions import DenyRestrictedPermission
+from ..auth.rest_permissions import ApiAndOauthPermission, DenyRestrictedPermission
 from .models import Grade
 from .renderers import JPEGRenderer
 from .serializers import CounselorTeacherSerializer, StudentSerializer, UserSerializer
@@ -36,10 +36,27 @@ class ProfileDetail(generics.RetrieveAPIView):
         else:
             user = request.user
 
+        if not request.user.oauth_and_api_access and user != request.user:
+            return Response({"detail": "You do not have permission to perform this action."}, status=403)
+
         if request.user.is_restricted and user != request.user:
             raise get_user_model().DoesNotExist
 
-        return Response(self.get_serializer(user).data)
+        # Remove sensitive information
+        data = self.get_serializer(user).data
+        fields_to_remove = [
+            "middle_name",
+            "absences",
+            "address",
+            "emails",
+            "phones",
+            "websites",
+            "is_announcements_admin",
+        ]
+        for field in fields_to_remove:
+            data.pop(field)
+
+        return Response(data)
 
 
 class ProfilePictureDetail(generics.RetrieveAPIView):
@@ -88,7 +105,7 @@ class Search(generics.RetrieveAPIView):
 
     """
 
-    permission_classes = (DenyRestrictedPermission,)
+    permission_classes = (ApiAndOauthPermission,)
     queryset = get_user_model().objects.all()
 
     def retrieve(self, request, *args, **kwargs):
