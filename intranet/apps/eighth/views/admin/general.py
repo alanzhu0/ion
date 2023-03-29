@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
@@ -18,8 +19,9 @@ from ...models import EighthActivity, EighthBlock, EighthRoom, EighthScheduledAc
 from ...utils import get_start_date, set_start_date
 
 
-@eighth_admin_required
 def eighth_admin_dashboard_view(request, **kwargs):
+    if not request.user.has_admin_permission("eighth"):
+        raise Http404
     start_date = get_start_date(request)
     all_activities = EighthActivity.objects.order_by("name").only(
         "id", "name", "special", "restricted", "both_blocks", "administrative", "sticky", "deleted"
