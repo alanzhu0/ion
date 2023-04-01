@@ -10,6 +10,11 @@
     {% endblock %}
 
     {% block css %}
+        {% comment %} <style id="page-preloader-style">
+            body {
+                overflow: hidden;
+            }
+        </style> {% endcomment %}
         <link href="{% static 'vendor/fontawesome-free-5.11.2/css/all.css' %}" rel="stylesheet">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:100italic,400italic,700italic,100,400,700">
 
@@ -30,6 +35,25 @@
         {% endif %}
 
     {% block js %}
+        <script id="page-preloader-script">
+            window.addEventListener("load", function() {
+                {% comment %} let bodyStyle = document.getElementsByTagName("body")[0].style; {% endcomment %}
+                let preloaderStyle = document.getElementById("page-preloader").style;
+                preloaderStyle.opacity = "0";
+                setTimeout(function() {
+                    {% comment %} bodyStyle.overflow = "auto"; {% endcomment %}
+                    preloaderStyle.zIndex = "-2000000000";
+                }, 200);
+                [...document.getElementsByTagName("a")].forEach(function(a) {
+                    if(!a.href.startsWith("http") || a.target == "_blank") return;
+                    a.addEventListener("click", function(e) {
+                        {% comment %} bodyStyle.overflow = "hidden"; {% endcomment %}
+                        preloaderStyle.zIndex = "2000000000";
+                        preloaderStyle.opacity = "1";
+                    });
+                });
+            });
+        </script>
         <script src="https://code.jquery.com/jquery-1.12.4.min.js"
             integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
             crossorigin="anonymous">
@@ -58,6 +82,30 @@
     {% include "android_client_check.html" %}
 </head>
 <body class="notransition{% block bodyclass %}{% endblock %}"{% block bodytag %}{% endblock %}>
+    <div id="page-preloader" style="
+        align-items: center;
+        background: rgb(242, 242, 244);
+        display: flex;
+        height: 100%;
+        width: 100%;
+        justify-content: center;
+        position: fixed;
+        left: 100px;
+        top: 40px;
+        opacity: 1;
+        transition: opacity 0.2s linear;
+        {% comment %} transform: opacity 5s linear; {% endcomment %}
+        z-index: 2000000000;">
+        {% comment %} <svg width="86px" height="70px" viewBox="0 0 86 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                <g stroke="#484848" stroke-width="6">
+                    <circle cx="43" cy="35" r="29"></circle>
+                    <path d="M43,6 L43,64"></path>
+                    <path d="M43,61 L77,6 L9,6 L43,61 Z"></path>
+                </g>
+            </g>
+        </svg>         {% endcomment %}
+    </div>
     {% if global_warning %}<div class="global-warning">{{ global_warning }}</div>{% endif %}
     {% block body %}
     {% endblock %}

@@ -5,6 +5,8 @@ echo "Performing pre-startup tasks..."
 python3 config/docker/entrypoint.py &  # For initial setup
 sass --watch intranet/static/css:intranet/collected_static/css &  # Automatically compile modified scss files
 
+# export DEBUG=TRUE  # Warning: DEBUG results in significantly slower performance
+
 echo "Starting web server..."
 cat << END
 
