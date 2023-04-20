@@ -10,10 +10,12 @@ from django import http
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+
 from django.core.serializers import serialize
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import get_template
 from django.utils import timezone
 
 from ...utils.date import get_senior_graduation_year
@@ -462,6 +464,9 @@ def handle_rank_choice(q, show_answers=False):
             # "male": sum(v.display_votes() if v.user.is_male else 0 for v in yr_votes),
             # "female": sum(v.display_votes() if v.user.is_female else 0 for v in yr_votes),
         }
+    
+    # Sort
+    choices.sort(key=lambda e: e["votes"]["total"]["all"], reverse=True)
 
     all_sum = sum(v.display_votes() for v in question_votes)
     choice["votes"]["total"] = {
@@ -473,7 +478,7 @@ def handle_rank_choice(q, show_answers=False):
     }
 
     choices.append(choice)
-
+       
     return {"question": q, "choices": choices}
 
 
@@ -491,6 +496,9 @@ def handle_choice(q, show_answers=False):
     # Clear vote
     votes = question_votes.filter(clear_vote=True)
     choices.append(generate_choice("Clear vote", votes, total_count, show_answers))
+    
+    # Sort
+    choices.sort(key=lambda e: e["votes"]["total"]["all"], reverse=True)
 
     # Total
     total_choice = generate_choice("Total", question_votes, total_count, show_answers)
