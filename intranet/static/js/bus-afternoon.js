@@ -3,7 +3,7 @@ import { getSocket } from "./bus-shared.js";
 /* globals Messenger */
 var bus = {};
 
-$(function() {
+$(function () {
     let base_url = window.location.host;
 
     bus.sendUpdate = function (data) {
@@ -28,11 +28,11 @@ $(function() {
     bus.StatusGroupModel = Backbone.Model.extend();
 
     bus.PersonalStatusView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render');
             this.template = _.template($('#personal-status').html());
         },
-        render: function() {
+        render: function () {
             var container = this.$el,
                 renderedContent = this.template(this.model.toJSON());
             container.html(renderedContent);
@@ -84,7 +84,7 @@ $(function() {
                 'text': this.text
             };
             this.$el.html(this.buttonTemplate(data))
-                    .removeClass('search-widget');
+                .removeClass('search-widget');
             return this;
         },
         renderSearchView: function (routeList, action) {
@@ -95,23 +95,32 @@ $(function() {
             let busList = [];
             if (action === 'Search for a bus') {
                 busList = routeList.filter(bus => bus.attributes.status === 'a')
-                                    .filter(bus => bus.attributes.route_name.includes('JT'))
-                                    .map(bus => bus.attributes);
+                    .filter(bus => bus.attributes.route_name.includes('JT'))
+                    .map(bus => bus.attributes);
             } else if (action === 'Mark a bus as arrived or on time') {
-                busList = routeList.filter(bus => !bus.attributes.route_name.includes('JT'))
-                                    .map(bus => {
-                                        if (bus.attributes.status === 'a') {
-                                            // TODO: less hacky deep copy
-                                            let attr = JSON.parse(JSON.stringify(bus.attributes));
-                                            attr.route_name = `Mark ${bus.attributes.route_name} as on time`;
-                                            return attr;
-                                        } else {
-                                            return bus.attributes;
-                                        }
-                                    });
+                busList = routeList.filter(bus => bus.attributes.route_name.includes(''))
+                    .map(bus => {
+                        if (bus.attributes.status === 'a' || bus.attributes.status === 'd') {
+                            // TODO: less hacky deep copy
+                            let attr = JSON.parse(JSON.stringify(bus.attributes));
+                            attr.route_name = `Mark ${bus.attributes.route_name} as on time`;
+                            return attr;
+                        }
+                        //Adds two elements, one for marking delayed one for arrived
+                        //.flat() so that the added array gets convereted to two elements
+                        else if (bus.attributes.status === 'o') {
+                            let attr = JSON.parse(JSON.stringify(bus.attributes));
+                            let attr2 = JSON.parse(JSON.stringify(bus.attributes));
+                            attr.route_name = `Mark ${bus.attributes.route_name} as delayed`;
+                            attr2.route_name = `Mark ${bus.attributes.route_name} as arrived`;
+                            return [attr, attr2]
+                        } else {
+                            return bus.attributes;
+                        }
+                    }).flat();
             } else if (action === 'Assign a bus to this space') {
                 busList = routeList.filter(bus => bus.attributes.status !== 'a')
-                                    .map(bus => bus.attributes);
+                    .map(bus => bus.attributes);
             }
             let selectField = container.find('select').selectize({
                 'options': busList,
@@ -159,7 +168,7 @@ $(function() {
                 if (!this.selected) {
                     return;
                 }
-                let route = this.model.findWhere({route_name: e.target.value}).attributes;
+                let route = this.model.findWhere({ route_name: e.target.value }).attributes;
                 route.space = this.selected.id;
                 route.status = 'a';
                 bus.sendUpdate(route);
@@ -169,14 +178,21 @@ $(function() {
                 // TODO: this is also super hacky
                 // Essentially, this checks if the selected route has "Mark"
                 // at the beginning, implying that it's to be marked on time.
-                if (e.target.value.indexOf('Mark') === 0) {
+                if (e.target.value.includes('on time')) {
                     route_name = e.target.value.split(' ')[1];
+                    alert(route_name);
                     st = 'o';
-                } else {
+                }
+                else if (e.target.value.includes('delayed')) {
+                    route_name = e.target.value.split(' ')[1];
+                    alert(route_name);
+                    st = 'd';
+                }
+                else {
                     route_name = e.target.value;
                     st = 'a';
                 }
-                let route = this.model.findWhere({route_name: route_name}).attributes;
+                let route = this.model.findWhere({ route_name: route_name }).attributes;
                 route.status = st;
                 bus.sendUpdate(route);
             }
@@ -350,18 +366,18 @@ $(function() {
                         // fallbacks to avoid issues that have appeared in the past with the "sans-serif" default.
                         text.font("family", "Helvetica, Arial, 'Open Sans', 'Liberation Sans', sans-serif");
 
-                        if(window.isSignage) {
+                        if (window.isSignage) {
                             var tspan = $(text.node).find("tspan");
-                            tspan.attr({"x": 0, "dy": 20.5});
+                            tspan.attr({ "x": 0, "dy": 20.5 });
 
                             // If we run this directly, it hasn't rendered yet, so we have to run it after a timeout
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 var tbox = tspan.get(0).getBBox();
                                 var sbox = space.getBBox();
 
                                 var offset;
                                 var dimenDiff;
-                                if(tbox.width > tbox.height) {
+                                if (tbox.width > tbox.height) {
                                     dimenDiff = sbox.width - tbox.width;
                                     offset = tbox.x - sbox.x;
                                 }
@@ -370,9 +386,9 @@ $(function() {
                                     offset = tbox.y - sbox.y;
                                 }
 
-                                if(dimenDiff < offset + 5) {
+                                if (dimenDiff < offset + 5) {
                                     text.node.classList.add("small");
-                                    if(route.attributes.route_name.length > 5) {
+                                    if (route.attributes.route_name.length > 5) {
                                         text.node.classList.add("extra-small");
                                     }
                                 }
@@ -381,13 +397,13 @@ $(function() {
                         else {
                             var tspan = $(text.node).find("tspan");
 
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 var tbox = tspan.get(0).getBBox();
                                 var sbox = space.getBBox();
 
                                 var offset;
                                 var dimenDiff;
-                                if(tbox.width > tbox.height) {
+                                if (tbox.width > tbox.height) {
                                     dimenDiff = sbox.width - tbox.width;
                                     offset = tbox.x - sbox.x;
                                 }
@@ -395,7 +411,7 @@ $(function() {
                                     dimenDiff = sbox.height - tbox.height;
                                     offset = tbox.y - sbox.y;
                                 }
-                                if(dimenDiff < offset + 5 || route.attributes.route_name.length > 5) {
+                                if (dimenDiff < offset + 5 || route.attributes.route_name.length > 5) {
                                     text.node.classList.add("extra-small");
                                 }
                             }, 0);
@@ -560,7 +576,7 @@ $(function() {
                 // equatorial radius of Earth = 6,378.1370 km
                 // polar radius of Earth = 6,356.7523 km
 
-                    // length of 1 deg equatorial longitude
+                // length of 1 deg equatorial longitude
                 let deg_lng_eq = 6378.1370 * 2 * Math.PI / 360;
                 // length of 1 deg equatorial latitude
                 let deg_lat_eq = 6356.7523 * 2 * Math.PI / 360;
@@ -587,7 +603,7 @@ $(function() {
                 }*/
                 let degrees = (direction) * (180 / Math.PI) - 49 + 90;
                 // let degrees = (direction) * (180 / Math.PI);
-                this.busDriverEl.css({'transform' : 'rotate('+ degrees +'deg)'});
+                this.busDriverEl.css({ 'transform': 'rotate(' + degrees + 'deg)' });
                 this.mapbox.setCenter(this.busDriverBus.point.coordinates);
 
                 this.busDriverBus.lastFrame = time;
@@ -634,7 +650,7 @@ $(function() {
             container.empty();
             container.append(this.template(this.model.toJSON()));
             _.each(this.model.attributes.collection, function (route) {
-                container.append(new bus.RouteView({model: route}).render().el);
+                container.append(new bus.RouteView({ model: route }).render().el);
             });
             return this;
         }
@@ -699,23 +715,23 @@ $(function() {
         }
     });
 
-    if(isAdmin) {
-        $(".bus-announcement-save").click(function() {
+    if (isAdmin) {
+        $(".bus-announcement-save").click(function () {
             bus.sendUpdate({
                 announcement: $(".bus-announcement").text()
             });
             $(".bus-announcement-save").text("Saved!").css("color", "green");
-            setTimeout(function() {
+            setTimeout(function () {
                 $(".bus-announcement-save").text("Save").css("color", "");
             }, 1500);
         });
-        $(".bus-announcement-clear").click(function() {
+        $(".bus-announcement-clear").click(function () {
             $(".bus-announcement").text("");
             bus.sendUpdate({
                 announcement: "",
             });
             $(".bus-announcement-clear").text("Cleared!").css("color", "green");
-            setTimeout(function() {
+            setTimeout(function () {
                 $(".bus-announcement-clear").text("Clear").css("color", "");
             }, 1500);
         });
@@ -740,7 +756,7 @@ $(function() {
             Backbone.trigger('recordScore', e);
         });
     }
-// window.personalStatusView = new bus.personalStatusView();
+    // window.personalStatusView = new bus.personalStatusView();
 });
 
 /*  TODO: flip bus map to be horizontal
