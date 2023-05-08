@@ -7,7 +7,7 @@ $(function () {
     let base_url = window.location.host;
 
     bus.sendUpdate = function (data) {
-        //console.log('Sending data:', data);
+
         data.time = "afternoon";
         socket.send(JSON.stringify(data));
     };
@@ -98,26 +98,30 @@ $(function () {
                     .filter(bus => bus.attributes.route_name.includes('JT'))
                     .map(bus => bus.attributes);
             } else if (action === 'Mark a bus as arrived or on time') {
-                busList = routeList.filter(bus => bus.attributes.route_name.includes(''))
-                    .map(bus => {
-                        if (bus.attributes.status === 'a' || bus.attributes.status === 'd') {
-                            // TODO: less hacky deep copy
-                            let attr = JSON.parse(JSON.stringify(bus.attributes));
-                            attr.route_name = `Mark ${bus.attributes.route_name} as on time`;
+                busList = routeList.map(bus => {
+                    if ((bus.attributes.status === 'a' || bus.attributes.status === 'd') && !bus.attributes.route_name.includes('JT')) {
+                        let attr = JSON.parse(JSON.stringify(bus.attributes));
+                        attr.route_name = `Mark ${bus.attributes.route_name} as on time`;
+                        return attr;
+                    }
+                    else if (bus.attributes.status === 'o') {
+                        let attr = JSON.parse(JSON.stringify(bus.attributes));
+                        let attr2 = JSON.parse(JSON.stringify(bus.attributes));
+                        if (bus.attributes.route_name.includes('JT')) {
+                            attr.route_name = `Mark ${bus.attributes.route_name} as delayed`;
                             return attr;
                         }
-                        //Adds two elements, one for marking delayed one for arrived
-                        //.flat() so that the added array gets convereted to two elements
-                        else if (bus.attributes.status === 'o') {
-                            let attr = JSON.parse(JSON.stringify(bus.attributes));
-                            let attr2 = JSON.parse(JSON.stringify(bus.attributes));
-                            attr.route_name = `Mark ${bus.attributes.route_name} as delayed`;
-                            attr2.route_name = `Mark ${bus.attributes.route_name} as arrived`;
-                            return [attr, attr2]
-                        } else {
+                        attr.route_name = `Mark ${bus.attributes.route_name} as delayed`;
+                        attr2.route_name = `Mark ${bus.attributes.route_name} as arrived`;
+                        return [attr, attr2];
+                    } else {
+                        if (!bus.attributes.route_name.includes('JT')) {
                             return bus.attributes;
                         }
-                    }).flat();
+                        return null;
+
+                    }
+                }).flat().filter((element) => element != null);
             } else if (action === 'Assign a bus to this space') {
                 busList = routeList.filter(bus => bus.attributes.status !== 'a')
                     .map(bus => bus.attributes);
@@ -139,15 +143,7 @@ $(function () {
                 ]
             })[0].selectize;
 
-            // Make search input readonly on mobile by default so the keyboard doesn't pop up
-            // if (window.innerWidth < 768) {
-            //     selectField.$control_input.prop('readonly', true);
-            //     $('.selectize-control').one("focus click", function (){
-            //         selectField.$control_input.prop('readonly', false);
-            //         // TODO: Auto-focus the input field again and get the virtual keyboard to show up.
-            //         // There doesn't seem to be an easy way to do this.
-            //     });
-            // }
+
 
             selectField.$control_input.prop('pattern', '[0-9]*');
             selectField.focus();
@@ -175,21 +171,18 @@ $(function () {
             } else if (this.action === 'Mark a bus as arrived or on time') {
                 let route_name = '';
                 let st = '';
-                // TODO: this is also super hacky
-                // Essentially, this checks if the selected route has "Mark"
-                // at the beginning, implying that it's to be marked on time.
-                if (e.target.value.includes('on time')) {
+                if (e.target.value.includes('on')) {
                     route_name = e.target.value.split(' ')[1];
-                    alert(route_name);
+
                     st = 'o';
                 }
                 else if (e.target.value.includes('delayed')) {
                     route_name = e.target.value.split(' ')[1];
-                    alert(route_name);
+
                     st = 'd';
                 }
                 else {
-                    route_name = e.target.value;
+                    route_name = e.target.value.split(' ')[1];
                     st = 'a';
                 }
                 let route = this.model.findWhere({ route_name: route_name }).attributes;
