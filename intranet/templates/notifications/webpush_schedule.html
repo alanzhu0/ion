@@ -1,0 +1,45 @@
+{% extends "page_with_nav.html" %}
+{% load static %}
+{% load pipeline %}
+
+{% block title %}
+    {{ block.super }} - WebPush Notifications Schedule
+{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+{% endblock %}
+
+{% block head %}
+    {% if dark_mode_enabled %}
+        {% stylesheet 'dark/base' %}
+        {% stylesheet 'dark/nav' %}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <div class="primary-content">
+        <h2>Push Notifications Schedule for {{ day }}</h2>
+        {% for key, value in schedules.items %}
+            <h3 style="margin-top: 15px;">{{ key }}</h3>
+            <table class="fancy-table" style="margin-top:10px;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                {% for key, val in value.items %}
+                    <tr>
+                        <td>{{ key }}</td>
+                        <td>{{ val }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    </div>
+{% endblock %}
